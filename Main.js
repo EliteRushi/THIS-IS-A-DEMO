@@ -1,32 +1,47 @@
 function loadStates() {
   const country = document.getElementById("country").value;
-  // Fetch states for selected country via API or local data
+  // Load States for selected Country from your data source
 }
 
 function loadTalukas() {
   const state = document.getElementById("state").value;
-  // Fetch talukas based on selected state
+  // Load Talukas based on selected State
 }
 
 function loadCities() {
   const taluka = document.getElementById("taluka").value;
-  // Fetch cities for selected taluka
+  // Load Cities based on selected Taluka
 }
 
-function showCityInfo() {
+function fetchCityDataFromWeb() {
   const country = document.getElementById("country").value;
   const state = document.getElementById("state").value;
   const taluka = document.getElementById("taluka").value;
   const city = document.getElementById("city").value;
   const fullAddress = `${city}, ${taluka}, ${state}, ${country}`;
 
+  // Fetch data from Nominatim (OpenStreetMap)
   fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}`)
-    .then(res => res.json())
+    .then(response => response.json())
     .then(data => {
-      document.getElementById("city-info").innerHTML = `
-        <p><strong>Coordinates:</strong> ${data[0]?.lat}, ${data[0]?.lon}</p>
-        <p><strong>Display Name:</strong> ${data[0]?.display_name}</p>
-        <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=${data[0]?.lon},${data[0]?.lat},${data[0]?.lon},${data[0]?.lat}&layer=mapnik" style="width:100%;height:300px;"></iframe>
-      `;
+      if (data && data.length > 0) {
+        const result = data[0];
+        document.getElementById("city-data").innerHTML = `
+          <h3>Address Info</h3>
+          <p><strong>Full Address:</strong> ${result.display_name}</p>
+          <p><strong>Latitude:</strong> ${result.lat}</p>
+          <p><strong>Longitude:</strong> ${result.lon}</p>
+          <iframe
+            src="https://www.openstreetmap.org/export/embed.html?bbox=${result.lon},${result.lat},${result.lon},${result.lat}&layer=mapnik"
+            style="width: 100%; height: 300px;"
+          ></iframe>
+        `;
+      } else {
+        document.getElementById("city-data").innerHTML = `<p>No data found for this location.</p>`;
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById("city-data").innerHTML = `<p>Error fetching data.</p>`;
     });
 }
