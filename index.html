@@ -1,175 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Location Selector</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 30px;
-      padding: 0;
-    }
-    select {
-      margin: 10px 0;
-      padding: 8px;
-      width: 250px;
-    }
-    #city-data {
-      margin-top: 20px;
-      padding: 15px;
-      border: 1px solid #ccc;
-    }
-    iframe {
-      border: none;
-    }
-  </style>
+  <title>Logo Prompt Generator</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-  <h2>Select Location</h2>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-xl font-bold mb-4">Logo Prompt Generator (No AI)</h1>
+    
+    <form id="promptForm">
+      <input class="w-full border p-2 mb-2" placeholder="Brand Name" name="brand" required />
+      <input class="w-full border p-2 mb-2" placeholder="Brand Description" name="description" />
+      <input class="w-full border p-2 mb-2" placeholder="Elements (e.g. crocodile)" name="element" />
+      <select class="w-full border p-2 mb-2" name="style">
+        <option value="minimal">Minimal</option>
+        <option value="3D">3D</option>
+        <option value="vintage">Vintage</option>
+        <option value="hand-drawn">Hand-drawn</option>
+        <option value="futuristic">Futuristic</option>
+      </select>
+      <input class="w-full border p-2 mb-2" placeholder="Preferred Colors" name="colors" />
+      <button class="bg-blue-600 text-white p-2 rounded w-full" type="submit">Generate Prompt</button>
+    </form>
 
-  <label>Country:</label><br>
-  <select id="country" onchange="loadStates()">
-    <option value="">-- Select Country --</option>
-  </select><br>
-
-  <label>State:</label><br>
-  <select id="state" onchange="loadTalukas()">
-    <option value="">-- Select State --</option>
-  </select><br>
-
-  <label>Taluka:</label><br>
-  <select id="taluka" onchange="loadCities()">
-    <option value="">-- Select Taluka --</option>
-  </select><br>
-
-  <label>City:</label><br>
-  <select id="city" onchange="fetchCityDataFromWeb()">
-    <option value="">-- Select City --</option>
-  </select>
-
-  <div id="city-data"></div>
+    <div id="result" class="mt-4 p-4 bg-green-100 hidden rounded"></div>
+  </div>
 
   <script>
-    // Sample data hierarchy
-    const locationData = {
-      "India": {
-        "Maharashtra": {
-          "Pune": ["Pune City", "Hadapsar", "Shivajinagar"],
-          "Nashik": ["Nashik City", "Sinnar"]
-        },
-        "Gujarat": {
-          "Ahmedabad": ["Ahmedabad City", "Naroda"],
-          "Surat": ["Surat City", "Vesu"]
-        }
-      },
-      "USA": {
-        "California": {
-          "Santa Clara": ["San Jose", "Sunnyvale"],
-          "Los Angeles": ["Los Angeles City"]
-        },
-        "Texas": {
-          "Harris": ["Houston"],
-          "Travis": ["Austin"]
-        }
-      }
+    document.getElementById('promptForm').onsubmit = function(e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+
+      const brand = formData.get("brand") || "Brand";
+      const desc = formData.get("description") || "a modern company";
+      const element = formData.get("element") || "a symbolic icon";
+      const style = formData.get("style") || "minimal";
+      const colors = formData.get("colors") || "neutral tones";
+
+      const prompt = `Design a ${style} logo for a brand called "${brand}". The logo should include ${element}, representing ${desc}. Use ${colors} in the design. The output should look professional and suitable for modern branding.`;
+
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerText = prompt;
+      resultDiv.classList.remove("hidden");
     };
-
-    // Load Countries
-    window.onload = function () {
-      const countrySelect = document.getElementById("country");
-      for (let country in locationData) {
-        const opt = document.createElement("option");
-        opt.value = country;
-        opt.text = country;
-        countrySelect.appendChild(opt);
-      }
-    };
-
-    function loadStates() {
-      const country = document.getElementById("country").value;
-      const stateSelect = document.getElementById("state");
-      stateSelect.innerHTML = `<option value="">-- Select State --</option>`;
-      document.getElementById("taluka").innerHTML = `<option value="">-- Select Taluka --</option>`;
-      document.getElementById("city").innerHTML = `<option value="">-- Select City --</option>`;
-
-      if (country && locationData[country]) {
-        for (let state in locationData[country]) {
-          const opt = document.createElement("option");
-          opt.value = state;
-          opt.text = state;
-          stateSelect.appendChild(opt);
-        }
-      }
-    }
-
-    function loadTalukas() {
-      const country = document.getElementById("country").value;
-      const state = document.getElementById("state").value;
-      const talukaSelect = document.getElementById("taluka");
-      talukaSelect.innerHTML = `<option value="">-- Select Taluka --</option>`;
-      document.getElementById("city").innerHTML = `<option value="">-- Select City --</option>`;
-
-      if (country && state && locationData[country][state]) {
-        for (let taluka in locationData[country][state]) {
-          const opt = document.createElement("option");
-          opt.value = taluka;
-          opt.text = taluka;
-          talukaSelect.appendChild(opt);
-        }
-      }
-    }
-
-    function loadCities() {
-      const country = document.getElementById("country").value;
-      const state = document.getElementById("state").value;
-      const taluka = document.getElementById("taluka").value;
-      const citySelect = document.getElementById("city");
-      citySelect.innerHTML = `<option value="">-- Select City --</option>`;
-
-      if (country && state && taluka && locationData[country][state][taluka]) {
-        const cities = locationData[country][state][taluka];
-        cities.forEach(city => {
-          const opt = document.createElement("option");
-          opt.value = city;
-          opt.text = city;
-          citySelect.appendChild(opt);
-        });
-      }
-    }
-
-    function fetchCityDataFromWeb() {
-      const country = document.getElementById("country").value;
-      const state = document.getElementById("state").value;
-      const taluka = document.getElementById("taluka").value;
-      const city = document.getElementById("city").value;
-      const fullAddress = `${city}, ${taluka}, ${state}, ${country}`;
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}`;
-
-      fetch(url)
-        .then(res => res.json())
-        .then(data => {
-          const cityInfoDiv = document.getElementById("city-data");
-          if (data.length > 0) {
-            const result = data[0];
-            cityInfoDiv.innerHTML = `
-              <h3>Address Info</h3>
-              <p><strong>Full Address:</strong> ${result.display_name}</p>
-              <p><strong>Latitude:</strong> ${result.lat}</p>
-              <p><strong>Longitude:</strong> ${result.lon}</p>
-              <iframe
-                width="100%" height="300"
-                src="https://www.openstreetmap.org/export/embed.html?bbox=${result.lon},${result.lat},${result.lon},${result.lat}&layer=mapnik&marker=${result.lat},${result.lon}"
-              ></iframe>
-            `;
-          } else {
-            cityInfoDiv.innerHTML = `<p>No data found for this location.</p>`;
-          }
-        })
-        .catch(err => {
-          console.error("Error:", err);
-          document.getElementById("city-data").innerHTML = `<p>Error fetching location data.</p>`;
-        });
-    }
   </script>
 </body>
 </html>
