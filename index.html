@@ -1,48 +1,258 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Logo Prompt Generator</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100 p-6">
-  <div class="max-w-xl mx-auto bg-white p-6 rounded shadow">
-    <h1 class="text-xl font-bold mb-4">Logo Prompt Generator (No AI)</h1>
-    
-    <form id="promptForm">
-      <input class="w-full border p-2 mb-2" placeholder="Brand Name" name="brand" required />
-      <input class="w-full border p-2 mb-2" placeholder="Brand Description" name="description" />
-      <input class="w-full border p-2 mb-2" placeholder="Elements (e.g. crocodile)" name="element" />
-      <select class="w-full border p-2 mb-2" name="style">
-        <option value="minimal">Minimal</option>
-        <option value="3D">3D</option>
-        <option value="vintage">Vintage</option>
-        <option value="hand-drawn">Hand-drawn</option>
-        <option value="futuristic">Futuristic</option>
-      </select>
-      <input class="w-full border p-2 mb-2" placeholder="Preferred Colors" name="colors" />
-      <button class="bg-blue-600 text-white p-2 rounded w-full" type="submit">Generate Prompt</button>
-    </form>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elite AI Prompt Generator</title>
 
-    <div id="result" class="mt-4 p-4 bg-green-100 hidden rounded"></div>
+<style>
+:root {
+  --bg: #ffffff;
+  --text: #111111;
+  --card: #f3f3f3;
+  --accent: #0077ff;
+}
+
+body.dark {
+  --bg: #121212;
+  --text: #ffffff;
+  --card: #1e1e1e;
+  --accent: #4da3ff;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: 0.3s ease;
+}
+
+.container {
+  max-width: 750px;
+  margin: auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+}
+
+textarea {
+  width: 100%;
+  height: 100px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: var(--card);
+  color: var(--text);
+  font-size: 16px;
+  resize: none;
+}
+
+.selectors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.selectors button {
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.selectors button.active {
+  background: var(--accent);
+  color: white;
+}
+
+.generate-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 20px;
+  background: var(--accent);
+  border: none;
+  color: white;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.output {
+  margin-top: 20px;
+  padding: 15px;
+  background: var(--card);
+  border-radius: 10px;
+  min-height: 100px;
+  white-space: pre-line;
+}
+
+.socials {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.socials a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.toggle-mode {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  background: var(--accent);
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  color: white;
+  cursor: pointer;
+}
+
+.popup {
+  position: fixed;
+  bottom: -100%;
+  left: 0;
+  width: 100%;
+  background: var(--card);
+  padding: 20px;
+  border-radius: 20px 20px 0 0;
+  transition: 0.4s ease;
+  max-height: 65%;
+  overflow-y: auto;
+}
+
+.popup.active {
+  bottom: 0;
+}
+
+#popup-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.popup button {
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.popup button:hover {
+  background: var(--accent);
+  color: white;
+}
+</style>
+</head>
+
+<body>
+
+<button class="toggle-mode" onclick="toggleMode()">🌙</button>
+
+<div class="container">
+  <h1>Elite AI Prompt Generator</h1>
+
+  <textarea id="description" placeholder="Enter your main concept..."></textarea>
+
+  <div class="selectors">
+    <button id="shotBtn" onclick="openPopup('shot', this)">Shot</button>
+    <button id="colorBtn" onclick="openPopup('color', this)">Color</button>
+    <button id="effectBtn" onclick="openPopup('effect', this)">Effect</button>
+    <button id="genreBtn" onclick="openPopup('genre', this)">Genre</button>
+    <button id="ratioBtn" onclick="openPopup('ratio', this)">Aspect Ratio</button>
   </div>
 
-  <script>
-    document.getElementById('promptForm').onsubmit = function(e) {
-      e.preventDefault();
-      const formData = new FormData(e.target);
+  <button class="generate-btn" onclick="generatePrompt()">Generate Prompt</button>
 
-      const brand = formData.get("brand") || "Brand";
-      const desc = formData.get("description") || "a modern company";
-      const element = formData.get("element") || "a symbolic icon";
-      const style = formData.get("style") || "minimal";
-      const colors = formData.get("colors") || "neutral tones";
+  <div class="output" id="output"></div>
 
-      const prompt = `Design a ${style} logo for a brand called "${brand}". The logo should include ${element}, representing ${desc}. Use ${colors} in the design. The output should look professional and suitable for modern branding.`;
+  <div class="socials">
+    <a href="https://youtube.com/" target="_blank">YouTube</a>
+    <a href="https://instagram.com/" target="_blank">Instagram</a>
+    <a href="https://twitter.com/" target="_blank">Twitter</a>
+  </div>
+</div>
 
-      const resultDiv = document.getElementById("result");
-      resultDiv.innerText = prompt;
-      resultDiv.classList.remove("hidden");
+<div class="popup" id="popup">
+  <h3 id="popup-title"></h3>
+  <div id="popup-options"></div>
+</div>
+
+<script>
+let selections = {};
+let currentButton = null;
+
+const options = {
+  shot: ["extreme close-up","low-angle","high-angle","aerial","portrait","macro","wide-angle","panoramic","dramatic"],
+  color: ["vibrant","warm","cool","pastel","bright","muted","neon","duotone","monochrome"],
+  effect: ["bokeh","tilt-shift","soft focus","background blur","lens flare","long exposure","golden hour","silhouette"],
+  genre: ["adventure","epic fantasy","sci-fi","film noir","horror","indie","thriller"],
+  ratio: ["square","portrait","landscape"]
+};
+
+function openPopup(type, button){
+  currentButton = button;
+
+  const popup = document.getElementById("popup");
+  const title = document.getElementById("popup-title");
+  const container = document.getElementById("popup-options");
+
+  title.innerText = "Select " + type;
+  container.innerHTML = "";
+
+  options[type].forEach(option=>{
+    const btn = document.createElement("button");
+    btn.innerText = option;
+    btn.onclick = ()=>{
+      selections[type] = option;
+
+      // Show selected option on main button
+      currentButton.innerText = option;
+      currentButton.classList.add("active");
+
+      popup.classList.remove("active");
     };
-  </script>
+    container.appendChild(btn);
+  });
+
+  popup.classList.add("active");
+}
+
+function generatePrompt(){
+  const desc = document.getElementById("description").value || "your concept";
+
+  const genre = selections.genre || "modern";
+  const shot = selections.shot || "professional";
+  const color = selections.color || "balanced";
+  const effect = selections.effect || "clean detailing";
+  const ratio = selections.ratio || "square";
+
+  const finalPrompt =
+`Design a ${genre} visual for "${desc}". 
+Use a ${shot} perspective with ${color} tones. 
+Apply ${effect} to enhance the composition. 
+The final output should be optimized for ${ratio} format and suitable for professional modern branding.`;
+
+  document.getElementById("output").innerText = finalPrompt;
+}
+
+function toggleMode(){
+  document.body.classList.toggle("dark");
+}
+</script>
+
 </body>
-</html>
+  </html>
